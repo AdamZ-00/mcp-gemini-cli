@@ -23,6 +23,7 @@ Create a `.env` file in the root directory:
 ```env
 GOOGLE_API_KEY="AIzaSy..."
 CLAUDE_MODEL="gemini-2.5-flash"
+```
 
 ### 3. Installation
 
