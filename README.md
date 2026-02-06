@@ -1,111 +1,32 @@
-# MCP Chat
+# MCP Chat CLI (Gemini Edition)
 
-MCP Chat is a command-line interface application that enables interactive chat capabilities with AI models through the Anthropic API. The application supports document retrieval, command-based prompts, and extensible tool integrations via the MCP (Model Control Protocol) architecture.
+This project is a command-line interface (CLI) for chatting with **Google Gemini** models. It is built upon the **Model Context Protocol (MCP)** architecture, originally designed for Anthropic's Claude, and adapted here to run with Google's GenAI SDK.
 
-## Prerequisites
+## About Model Context Protocol (MCP)
 
-- Python 3.9+
-- Anthropic API Key
+The [Model Context Protocol (MCP)](https://anthropic.skilljar.com/introduction-to-model-context-protocol) is an open standard that enables AI models to securely connect to local data and tools. Instead of building custom integrations for every data source, MCP provides a universal language for:
+* **Resources**: Reading local files or data (e.g., `@document.md`).
+* **Tools**: Executing functions (e.g., executing a script).
+* **Prompts**: Using reusable templates.
+
+This project implements an **MCP Client** that connects to a local MCP Server (`mcp_server.py`), but swaps the underlying intelligence engine from Claude to Gemini.
+
+## Key Features
+
+* **Gemini Adapter**: A custom adapter (`core/claude.py`) translates MCP requests into Google GenAI format, allowing the use of free-tier models like `gemini-2.5-flash`.
+* **Local RAG**: Chat with your local documents using the `@filename` syntax.
+* **Context Aware**: The agent receives system-level context (time, date) automatically.
+* **Lightweight**: Built with Python and `uv` for fast execution.
 
 ## Setup
 
-### Step 1: Configure the environment variables
+### 1. Prerequisites
+* Python 3.9+
+* A Google API Key (available at [Google AI Studio](https://aistudio.google.com/))
 
-1. Create or edit the `.env` file in the project root and verify that the following variables are set correctly:
+### 2. Configuration
+Create a `.env` file in the root directory:
 
-```
-ANTHROPIC_API_KEY=""  # Enter your Anthropic API secret key
-```
-
-### Step 2: Install dependencies
-
-#### Option 1: Setup with uv (Recommended)
-
-[uv](https://github.com/astral-sh/uv) is a fast Python package installer and resolver.
-
-1. Install uv, if not already installed:
-
-```bash
-pip install uv
-```
-
-2. Create and activate a virtual environment:
-
-```bash
-uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
-
-3. Install dependencies:
-
-```bash
-uv pip install -e .
-```
-
-4. Run the project
-
-```bash
-uv run main.py
-```
-
-#### Option 2: Setup without uv
-
-1. Create and activate a virtual environment:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
-
-2. Install dependencies:
-
-```bash
-pip install anthropic python-dotenv prompt-toolkit "mcp[cli]==1.8.0"
-```
-
-3. Run the project
-
-```bash
-python main.py
-```
-
-## Usage
-
-### Basic Interaction
-
-Simply type your message and press Enter to chat with the model.
-
-### Document Retrieval
-
-Use the @ symbol followed by a document ID to include document content in your query:
-
-```
-> Tell me about @deposition.md
-```
-
-### Commands
-
-Use the / prefix to execute commands defined in the MCP server:
-
-```
-> /summarize deposition.md
-```
-
-Commands will auto-complete when you press Tab.
-
-## Development
-
-### Adding New Documents
-
-Edit the `mcp_server.py` file to add new documents to the `docs` dictionary.
-
-### Implementing MCP Features
-
-To fully implement the MCP features:
-
-1. Complete the TODOs in `mcp_server.py`
-2. Implement the missing functionality in `mcp_client.py`
-
-### Linting and Typing Check
-
-There are no lint or type checks implemented.
+```env
+GOOGLE_API_KEY="AIzaSy..."
+CLAUDE_MODEL="gemini-2.5-flash"
