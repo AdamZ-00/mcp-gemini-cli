@@ -11,13 +11,6 @@ The [Model Context Protocol (MCP)](https://anthropic.skilljar.com/introduction-t
 
 This project implements an **MCP Client** that connects to a local MCP Server (`mcp_server.py`), but swaps the underlying intelligence engine from Claude to Gemini.
 
-## Key Features
-
-* **Gemini Adapter**: A custom adapter (`core/claude.py`) translates MCP requests into Google GenAI format, allowing the use of free-tier models like `gemini-2.5-flash`.
-* **Local RAG**: Chat with your local documents using the `@filename` syntax.
-* **Context Aware**: The agent receives system-level context (time, date) automatically.
-* **Lightweight**: Built with Python and `uv` for fast execution.
-
 ## Setup
 
 ### 1. Prerequisites
