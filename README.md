@@ -31,5 +31,30 @@ CLAUDE_MODEL="gemini-2.5-flash"
 ```bash
 pip install uv
 uv pip install -r requirements.txt
+```
+
+## Usage
+
+### Basic Interaction
+
+Simply type your message and press Enter to chat with the model.
+
+### Document Retrieval
+
+Use the @ symbol followed by a document ID to include document content in your query:
+
+```
+> Tell me about @deposition.md
+```
+
+### Commands
+
+Use the / prefix to execute commands defined in the MCP server:
+
+```
+> /summarize deposition.md
+```
+
+Commands will auto-complete when you press Tab.
 
 
