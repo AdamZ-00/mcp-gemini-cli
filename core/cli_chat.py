@@ -1,10 +1,12 @@
 from typing import List, Tuple
 from mcp.types import Prompt, PromptMessage
-from anthropic.types import MessageParam
 
 from core.chat import Chat
 from core.claude import Claude
 from mcp_client import MCPClient
+
+# Type alias pour compatibilité (remplace anthropic.types.MessageParam)
+MessageParam = dict
 
 
 class CliChat(Chat):

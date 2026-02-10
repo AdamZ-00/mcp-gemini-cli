@@ -19,6 +19,19 @@ docs = {
 # TODO: Write a prompt to rewrite a doc in markdown format
 # TODO: Write a prompt to summarize a doc
 
+@mcp.tool()
+def list_documents() -> str:
+    """Lists all available documents in the repository."""
+    return "\n".join(docs.keys())
+
+@mcp.tool()
+def read_document(filename: str) -> str:
+    """Reads the content of a specific document.
+    Args:
+        filename: The name of the file to read (e.g., 'report.pdf')
+    """
+    return docs.get(filename, "Error: File not found.")
+
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")

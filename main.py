@@ -12,19 +12,17 @@ from core.cli import CliApp
 
 load_dotenv()
 
-# Anthropic Config
-claude_model = os.getenv("CLAUDE_MODEL", "")
-anthropic_api_key = os.getenv("ANTHROPIC_API_KEY", "")
+# Config Gemini
+model = os.getenv("CLAUDE_MODEL", "gemini-2.5-flash")
+google_api_key = os.getenv("GOOGLE_API_KEY", "")
 
-
-assert claude_model, "Error: CLAUDE_MODEL cannot be empty. Update .env"
-assert anthropic_api_key, (
-    "Error: ANTHROPIC_API_KEY cannot be empty. Update .env"
+assert google_api_key, (
+    "Error: GOOGLE_API_KEY cannot be empty. Update .env"
 )
 
 
 async def main():
-    claude_service = Claude(model=claude_model)
+    claude_service = Claude(model=model)
 
     server_scripts = sys.argv[1:]
     clients = {}

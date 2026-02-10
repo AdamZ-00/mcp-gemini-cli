@@ -1,14 +1,14 @@
 import json
-from typing import Optional, Literal, List
+from typing import Optional, List
 from mcp.types import CallToolResult, Tool, TextContent
 from mcp_client import MCPClient
-from anthropic.types import Message, ToolResultBlockParam
+from google.genai import types
 
 
 class ToolManager:
     @classmethod
-    async def get_all_tools(cls, clients: dict[str, MCPClient]) -> list[Tool]:
-        """Gets all tools from the provided clients."""
+    async def get_all_tools(cls, clients: dict[str, MCPClient]) -> list[dict]:
+        """Gets all tools from the provided clients, in dict format for claude.py to convert."""
         tools = []
         for client in clients.values():
             tool_models = await client.list_tools()
@@ -35,45 +35,33 @@ class ToolManager:
         return None
 
     @classmethod
-    def _build_tool_result_part(
-        cls,
-        tool_use_id: str,
-        text: str,
-        status: Literal["success"] | Literal["error"],
-    ) -> ToolResultBlockParam:
-        """Builds a tool result part dictionary."""
-        return {
-            "tool_use_id": tool_use_id,
-            "type": "tool_result",
-            "content": text,
-            "is_error": status == "error",
-        }
-
-    @classmethod
     async def execute_tool_requests(
-        cls, clients: dict[str, MCPClient], message: Message
-    ) -> List[ToolResultBlockParam]:
-        """Executes a list of tool requests against the provided clients."""
-        tool_requests = [
-            block for block in message.content if block.type == "tool_use"
-        ]
-        tool_result_blocks: list[ToolResultBlockParam] = []
-        for tool_request in tool_requests:
-            tool_use_id = tool_request.id
-            tool_name = tool_request.name
-            tool_input = tool_request.input
+        cls, clients: dict[str, MCPClient], response
+    ) -> list[types.Part]:
+        """Exécute les appels de fonctions demandés par Gemini et retourne les Parts de résultats."""
+        function_calls = response.function_calls
+        if not function_calls:
+            return []
+
+        result_parts: list[types.Part] = []
+
+        for fc in function_calls:
+            tool_name = fc.name
+            tool_input = dict(fc.args) if fc.args else {}
 
             client = await cls._find_client_with_tool(
                 list(clients.values()), tool_name
             )
 
             if not client:
-                tool_result_part = cls._build_tool_result_part(
-                    tool_use_id, "Could not find that tool", "error"
+                result_part = types.Part.from_function_response(
+                    name=tool_name,
+                    response={"error": "Could not find that tool"},
                 )
-                tool_result_blocks.append(tool_result_part)
+                result_parts.append(result_part)
                 continue
 
+            tool_output = None
             try:
                 tool_output: CallToolResult | None = await client.call_tool(
                     tool_name, tool_input
@@ -85,23 +73,20 @@ class ToolManager:
                     item.text for item in items if isinstance(item, TextContent)
                 ]
                 content_json = json.dumps(content_list)
-                tool_result_part = cls._build_tool_result_part(
-                    tool_use_id,
-                    content_json,
-                    "error"
-                    if tool_output and tool_output.isError
-                    else "success",
+
+                result_part = types.Part.from_function_response(
+                    name=tool_name,
+                    response={"result": content_json},
                 )
+
             except Exception as e:
                 error_message = f"Error executing tool '{tool_name}': {e}"
                 print(error_message)
-                tool_result_part = cls._build_tool_result_part(
-                    tool_use_id,
-                    json.dumps({"error": error_message}),
-                    "error"
-                    if tool_output and tool_output.isError
-                    else "success",
+                result_part = types.Part.from_function_response(
+                    name=tool_name,
+                    response={"error": error_message},
                 )
 
-            tool_result_blocks.append(tool_result_part)
-        return tool_result_blocks
+            result_parts.append(result_part)
+
+        return result_parts
