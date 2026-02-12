@@ -30,7 +30,26 @@ CLAUDE_MODEL="gemini-2.5-flash"
 **Using uv (Recommended):**
 ```bash
 pip install uv
-uv pip install -r requirements.txt
+uv sync
+```
+
+**Using pip:**
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Running the Application
+
+**Using uv:**
+```bash
+uv run main.py
+```
+
+**Using Python directly:**
+
+Set `USE_UV=0` in your `.env` file, then:
+```bash
+python main.py
 ```
 
 ## Usage
@@ -39,22 +58,13 @@ uv pip install -r requirements.txt
 
 Simply type your message and press Enter to chat with the model.
 
-### Document Retrieval
+### Document Access
 
-Use the @ symbol followed by a document ID to include document content in your query:
-
-```
-> Tell me about @deposition.md
-```
-
-### Commands
-
-Use the / prefix to execute commands defined in the MCP server:
+The MCP server exposes tools (`list_documents`, `read_document`) that the AI model can call automatically. Simply ask about a document and the model will use the appropriate tool to retrieve its content:
 
 ```
-> /summarize deposition.md
+> What does the deposition say?
+> List all available documents
 ```
 
-Commands will auto-complete when you press Tab.
-
-
+> **Note:** The `@document` resource syntax and `/command` prompt features are defined in the CLI but are not yet implemented on the server side (marked as TODOs in `mcp_server.py`).
